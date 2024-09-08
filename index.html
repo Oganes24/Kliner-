@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1, minimum-scale=1">
+    <title>Clicker Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            width: 100%;
+            background-color: black;
+        }
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Стили для окна топа игроков */
+        #leaderboardWindow {
+            position: absolute;
+            width: 340px;
+            height: 340px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            overflow-y: auto;
+            background-color: rgba(50, 50, 50, 0.9);
+            border-radius: 15px;
+            border: 2px solid white;
+            z-index: 2;
+            display: none;
+        }
+
+        #closeButton {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background-color: red;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .window-title {
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            padding-top: 10px;
+        }
+
+        .playerEntry {
+            color: white;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Окно топа игроков -->
+    <div id="leaderboardWindow">
+        <div class="window-title">Топ игроков</div>
+        <div id="leaderboardContent"></div>
+        <div id="closeButton">Закрыть</div>
+    </div>
+
+    <script>
+        // Логика для закрытия окна топа
+        document.getElementById('closeButton').addEventListener('click', function() {
+            document.getElementById('leaderboardWindow').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
