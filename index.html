@@ -2,78 +2,170 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1, minimum-scale=1">
-    <title>Clicker Game</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Скупка драгметаллов в Хабаровске</title>
     <style>
-        body, html {
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden;
-            width: 100%;
-            background-color: black;
+            background: linear-gradient(135deg, #f0f0f0, #d9d9d9);
         }
-        canvas {
-            display: block;
-            width: 100% !important;
-            height: 100% !important;
-        }
-
-        /* Стили для окна топа игроков */
-        #leaderboardWindow {
-            position: absolute;
-            width: 340px;
-            height: 340px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            overflow-y: auto;
-            background-color: rgba(50, 50, 50, 0.9);
-            border-radius: 15px;
-            border: 2px solid white;
-            z-index: 2;
+        .scene {
             display: none;
-        }
-
-        #closeButton {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            padding: 5px 10px;
-            background-color: red;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .window-title {
-            color: white;
-            font-size: 24px;
+            padding: 20px;
             text-align: center;
-            padding-top: 10px;
+            min-height: 100vh;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: 10px;
+            margin: 50px auto;
+            max-width: 800px;
         }
-
-        .playerEntry {
+        .scene.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .button {
+            padding: 15px 30px;
+            background-color: #4CAF50;
             color: white;
-            font-size: 14px;
-            margin-bottom: 10px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        .product {
+            margin: 20px;
+            padding: 15px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            display: inline-block;
+            text-align: left;
+            background: linear-gradient(135deg, #ffffff, #f9f9f9);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+        }
+        .product img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .product h2 {
+            margin-top: 10px;
+            color: #333;
+        }
+        .product p {
+            color: #555;
         }
     </style>
 </head>
 <body>
-    <!-- Окно топа игроков -->
-    <div id="leaderboardWindow">
-        <div class="window-title">Топ игроков</div>
-        <div id="leaderboardContent"></div>
-        <div id="closeButton">Закрыть</div>
+    <!-- Main Scene -->
+    <div id="mainScene" class="scene active">
+        <h1>Скупка драгметаллов в Хабаровске</h1>
+        <p>Добро пожаловать! Мы предлагаем самые выгодные цены на покупку золота, серебра и других драгоценных металлов.</p>
+        <p><strong>Адрес:</strong> ул. Фейковая, д. 123, г. Хабаровск</p>
+        <p><strong>Телефон:</strong> +7 (999) 123-45-67</p>
+        <button class="button" onclick="showScene('productScene')">Просмотреть товары</button>
+        <button class="button" onclick="showScene('loginScene')">Вход</button>
+    </div>
+
+    <!-- Product Scene -->
+    <div id="productScene" class="scene">
+        <h1>Наши Товары</h1>
+        <div id="sections">
+        </div>
+        <button class="button" onclick="showScene('mainScene')">Назад на главную</button>
+    </div>
+
+    <!-- Login Scene -->
+    <div id="loginScene" class="scene">
+        <h1>Вход</h1>
+        <form onsubmit="login(event)">
+            <input type="text" id="username" placeholder="Имя пользователя" required><br><br>
+            <input type="password" id="password" placeholder="Пароль" required><br><br>
+            <button type="submit" class="button">Войти</button>
+        </form>
+        <button class="button" onclick="showScene('mainScene')">Назад на главную</button>
+    </div>
+
+    <!-- Admin Scene -->
+    <div id="adminScene" class="scene">
+        <h1>Панель Администратора</h1>
+        <div id="editSections">
+        </div>
+        <button class="button" onclick="showScene('mainScene')">Выйти</button>
     </div>
 
     <script>
-        // Логика для закрытия окна топа
-        document.getElementById('closeButton').addEventListener('click', function() {
-            document.getElementById('leaderboardWindow').style.display = 'none';
-        });
+        const sectionsContainer = document.getElementById('sections');
+        const editSectionsContainer = document.getElementById('editSections');
+        const body = document.body;
+        let isAdmin = false;
+
+        for (let section = 1; section <= 20; section++) {
+            // Add button for each section on main product scene
+            let button = document.createElement('button');
+            button.className = 'button';
+            button.textContent = `Раздел ${section}`;
+            button.onclick = () => showScene(`section${section}Scene`);
+            sectionsContainer.appendChild(button);
+
+            // Create a new scene for each section
+            let sectionScene = document.createElement('div');
+            sectionScene.id = `section${section}Scene`;
+            sectionScene.className = 'scene';
+            let sectionHTML = `<h1>Товары в разделе ${section}</h1>`;
+            for (let product = 1; product <= 20; product++) {
+                const price = (Math.random() * 100).toFixed(2);
+                sectionHTML += `<div class="product">
+                                    <img src="https://via.placeholder.com/300" alt="Product ${product}">
+                                    <h2 contenteditable="${isAdmin}">Продукт ${product}</h2>
+                                    <p contenteditable="${isAdmin}">Описание продукта ${product}.</p>
+                                    <p contenteditable="${isAdmin}">Цена: $${price}</p>
+                               </div>`;
+            }
+            sectionHTML += `<button class="button" onclick="showScene('productScene')">Назад к разделам</button>`;
+            sectionHTML += `<button class="button" onclick="showScene('mainScene')">Назад на главную</button>`;
+            sectionScene.innerHTML = sectionHTML;
+            body.appendChild(sectionScene);
+
+            // Add editable sections to Admin Panel
+            editSectionsContainer.innerHTML += `<div>
+                <h2 contenteditable="true">Раздел ${section}</h2>
+                <p>Кликните на любой раздел или товар, чтобы редактировать его содержимое.</p>
+            </div>`;
+        }
+
+        function showScene(sceneId) {
+            const scenes = document.querySelectorAll('.scene');
+            scenes.forEach(scene => scene.classList.remove('active'));
+            document.getElementById(sceneId).classList.add('active');
+        }
+
+        function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === 'Oganes-98' && password === 'Eloyan-98') {
+                isAdmin = true;
+                showScene('adminScene');
+            } else {
+                alert('Неверные учетные данные!');
+            }
+        }
     </script>
 </body>
 </html>
